@@ -15,54 +15,52 @@ class TelegramPlugin extends Plugin {
     function onTicketCreated($ticket) {
         // Check if the function is triggered
         error_log('onTicketCreated called with ticket ID: ' . $ticket->getId());
-
+    
         global $ost;
         $ticketLink = $ost->getConfig()->getUrl().'scp/tickets.php?id='.$ticket->getId();
-        $ticketId = $ticket->getNumber();
-        $title = $ticket->getSubject() ?: 'No subject';
-        $createdBy = $ticket->getName()." (".$ticket->getEmail().")";
-        $priority = $ticket->getPriority();
-        $message = $ticket->getLastMessage()->getMessage() ?: 'No content';
+        $ticketNumber = $ticket->getNumber(); // %{ticket.number}
+        $title = $ticket->getSubject() ?: 'No subject'; // %{ticket.subject}
+        $createdBy = $ticket->getName()." (".$ticket->getEmail().")"; // %{ticket.name} and %{ticket.email}
+        $helpTopicObj = $ticket->getHelpTopic(); // %{ticket.topic}
+        $helpTopic = is_object($helpTopicObj) ? $helpTopicObj->getName() : 'No help topic';
+        $message = $ticket->getLastMessage()->getMessage() ?: 'No content'; // %{message}
         $chatid = '-4510801959';
 
         // Log the ticket details
-        error_log('Ticket details: ID = ' . $ticketId . ', Created by = ' . $createdBy . ', Subject = ' . $title);
-
-        if ($this->getConfig()->get('telegram-include-body')) {
-            $body = $ticket->getLastMessage()->getMessage() ?: 'No content';
-            $body = str_replace('<p>', '', $body);
-            $body = str_replace('</p>', '<br />' , $body);
-            $breaks = array("<br />","<br>","<br/>");
-            $body = str_ireplace($breaks, "\n", $body);
-            $body = preg_replace('/\v(?:[\v\h]+)/', '', $body);
-            $body = strip_tags($body);
-
-            error_log('Message body included: ' . $body);
-        } else {
-            $body = '';
-        }
-
+        error_log('Ticket details: ID = ' . $ticket->getId() . ', Created by = ' . $createdBy . ', Subject = ' . $title . ', DeptLoc = ' . $deptloc);
+    
+        // Construct the message text with the variables
+        $messageText = "<b>New Ticket:</b> <a href=\"".$ticketLink."\">#".$ticketNumber."</a>\n"
+                     . "<b>Created by:</b> ".$createdBy."\n"
+                     . "<b>Subject:</b> ".$title."\n"
+                     . "<b>Help Topic:</b> ".$helpTopic."\n"
+                     . "<b>Department Location:</b> ".$deptloc."\n" // Add the custom field deptloc here
+                     . ($body ? "<b>Message:</b>\n".$body : '');
+    
+        // Prepare the payload
         $payload = array(
             "method" => "sendMessage",
             "chat_id" => $chatid,
-            "text" => "<b>New Ticket:</b> <a href=\"".$ticketLink."\">#".$ticketId."</a>\n<b>Created by:</b> ".$createdBy."\n<b>Subject:</b> ".$title."\n<b>Priority:</b> ".$priority."\n<b>Priority:</b> ".$priority."\n".$body.($body?"\n<b>Message:</b>\n".$body:''),
+            "text" => $messageText,
             "parse_mode" => "html",
             "disable_web_page_preview" => "True"
         );
-
+    
         // Log the payload
         error_log('Payload to be sent to Telegram: ' . json_encode($payload));
-
-        // Call sendToTelegram method
+    
+        // Send the message to Telegram
         $this->sendToTelegram($payload);
     }
+    
+       
 
     function sendToTelegram($payload) {
         try {
             global $ost;
 
             $data_string = json_encode($payload);
-            $url = 'https://api.telegram.org/bot8073846070:AAHGUGW1WgGqXzeeb8ulgjNhddO8s0_w0Fg/sendMessage';
+            $url = 'https://api.telegram.org/bot${TOKEN}/sendMessage';
 
             // Log the URL being used
             error_log('Sending to Telegram using webhook URL: ' . $url);
