@@ -14,5 +14,6 @@ For more information about Telegram Bot, see: https://core.telegram.org/bots/api
 Info
 ------
 This plugin uses CURL and tested on osTicket (v1.17.3) and (v1.18)
+This Plugin sent Data From Custom Form "Ticket Details". You can adjust it by yourself
 
 Based on [(https://github.com/foamrider/osticket-telegram)]
