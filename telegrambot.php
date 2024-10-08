@@ -33,7 +33,7 @@ class TelegramPlugin extends Plugin {
         $messageObj = $ticket->getLastMessage();
         $body = $messageObj ? $messageObj->getMessage() : 'No content';
 
-        // Escape the message for HTML
+        // Escape & Strip the message for HTML
         $body = strip_tags($body);
 
         // Fetch custom form data
