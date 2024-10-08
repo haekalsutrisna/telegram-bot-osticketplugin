@@ -5,7 +5,7 @@ An plugin for [osTicket](https://osticket.com) work for version 1.18+ which post
 Install
 --------
 1. Clone this repo or download the zip file and place the contents into your `include/plugins` folder.
-2. Change Telegrams Bot URL using your own bot (ex. `(https://api.telegram.org/botYOUR_BOT_TOKEN/sendMessage')`) in the telegrambot.php file
+2. Change Telegrams Bot URL using your own bot (ex. `https://api.telegram.org/botYOUR_BOT_TOKEN/sendMessage`) in the telegrambot.php file
 3. Change Telegram Chat ID on $chatid = 'YOUR_TELEGRAM_CHAT_ID'; using your Chat ID
 4. Install the plugin on OSTicket
 
